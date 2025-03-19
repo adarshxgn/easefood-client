@@ -11,11 +11,12 @@ const OdersPage = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const seller_category = localStorage.getItem("seller_category");
 
     useEffect(() => {
         const fetchOders = async () => {
             try {
-                const pin = localStorage.getItem("pin"); // Assuming you store the seller's PIN in localStorage
+                const pin = localStorage.getItem("pin"); 
                 if (!pin) {
                     console.error("Seller PIN not found");
                     return;
@@ -71,7 +72,7 @@ const OdersPage = () => {
                     <thead>
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        Table
+                                    {seller_category=="Hotel"?"Table":"Room"}
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                                         Items

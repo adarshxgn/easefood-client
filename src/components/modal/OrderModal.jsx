@@ -1,7 +1,7 @@
     import React from 'react';
     import { motion } from 'framer-motion';
     import { X } from 'lucide-react';
-
+    const seller_category = localStorage.getItem("seller_category");
     const OrderModal = ({ isOpen, onClose, order }) => {
         if (!isOpen) return null;
 
@@ -27,7 +27,7 @@
                     
                     <div className="space-y-4">
                         <div className="flex justify-between border-b border-gray-700 pb-2">
-                            <span className="text-gray-400">Table Number:</span>
+                            <span className="text-gray-400">{seller_category=="Hotel"?"Table":"Room"} Number:</span>
                             <span className="text-white">{order?.table_number}</span>
                         </div>
                         

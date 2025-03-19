@@ -3,10 +3,11 @@ import { useState } from "react";
 import { AnimatePresence , motion} from "motion/react"
 import { Link } from "react-router-dom";
 const pin = localStorage.getItem("pin");
+const seller_category = localStorage.getItem("seller_category");
 const SIDEBAR_ITEMS = [
 	{ name: "Dashboard", icon:BarChart2, color: "#10B981", href: "/dashboard" },
 	{ name: "Orders", icon: ShoppingCart, color: "#F59E0B", href: "/orders" },
-	{ name: "Tables", icon: Dice4, color: "#28b463", href: "/tables" },
+	{ name: seller_category === "Hotel" ? "Table" : "Room", icon: Dice4, color: "#28b463", href: "/tables" },
 	{ name: "Dishes", icon: ShoppingBag, color: "#2980b9", href: "/dishes" },
 	{ name: "Category", icon: AlignEndHorizontal, color: "#8B5CF6", href: "/category" },
 	{

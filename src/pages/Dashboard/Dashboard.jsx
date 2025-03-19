@@ -8,6 +8,7 @@ import OrderDetailsModal from '../../components/modal/OrderDetailsModal';
 
 const Dashboard = () => {
     const [orders, setOrders] = useState([]);
+    const seller_category = localStorage.getItem("seller_category");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [orderStats, setOrderStats] = useState({
@@ -87,7 +88,7 @@ const Dashboard = () => {
                 whileHover={{ scale: 1.02 }}
             >
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold text-white">Table {order.table_number}</h3>
+                    <h3 className="text-lg font-semibold text-white">{seller_category=="Hotel"?"Table":"Room"} {order.table_number}</h3>
                     <span className={`px-2 py-1 rounded-full text-sm ${
                         order.status === 'Paid' ? 'bg-green-600' : 'bg-yellow-600'
                     }`}>

@@ -65,7 +65,7 @@ const EditTables = ({ table, onClose }) => {
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700">Table Number</label>
+                    <label className="block text-sm font-medium text-gray-700">{seller_category=="Hotel"?"Table":"Room"} Number</label>
                     <input
                         type="text"
                         name="table_number"

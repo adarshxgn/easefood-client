@@ -128,7 +128,7 @@ const Tables = () => {
             </div>
           )
           )) : (
-            <p>No tables added</p>
+            <p>No {seller_category=="Hotel"?"Table":"Room"} added</p>
           )}
         </div>
       </div>

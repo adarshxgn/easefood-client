@@ -5,7 +5,7 @@ import { changestatusapi } from '../../services/allApi';
 
 const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
     const [isUpdating, setIsUpdating] = useState(false);
-
+    const seller_category = localStorage.getItem("seller_category");
     const handleStatusChange = async () => {
         try {
             setIsUpdating(true);
@@ -47,7 +47,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 border-b border-gray-700 pb-4">
                         <div>
-                            <p className="text-gray-400">Table Number</p>
+                            <p className="text-gray-400">{seller_category=="Hotel"?"Table":"Room"} Number</p>
                             <p className="text-white text-lg">{order.table_number}</p>
                         </div>
                         <div>
