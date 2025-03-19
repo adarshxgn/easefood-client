@@ -3,11 +3,12 @@ import { motion } from "motion/react"
 import StatCard from "../../components/common/StatCard";
 import { CheckCircle, Clock, DollarSign, ShoppingBag } from "lucide-react";
 import Header from "../../components/common/Header";
-import { getOrderDashboardAPI } from "../../services/allApi";
+import { getAllOdersAPI, getOrderDashboardAPI } from "../../services/allApi";
 import OrderDetailsModal from '../../components/modal/OrderDetailsModal';
 
 const Dashboard = () => {
     const [orders, setOrders] = useState([]);
+    const [dashOrders, setDashOrders] = useState([]);
     const seller_category = localStorage.getItem("seller_category");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +18,46 @@ const Dashboard = () => {
         completedOrders: 0,
         totalRevenue: 0,
     });
+    const fetchallOders = async () => {
+                try {
+                    const pin = localStorage.getItem("pin"); 
+                    if (!pin) {
+                        console.error("Seller PIN not found");
+                        return;
+                    }
+                    
+                    const response = await getAllOdersAPI(pin);
+                    if (response && response.data) {
+                        setOrders(response.data);
+                
+                        // Calculate stats safely with updated logic
+                        const total = response.data.length || 0;
+                        const completed = response.data.filter(order => order?.status === "Delivered").length || 0;
+                        const pending = response.data.filter(order => order?.status === "Pending").length || 0;
+        
+                        // Fixed revenue calculation
+                        const revenue = response.data.reduce((sum, order) => {
+                            if (order?.items) {
+                                const orderTotal = order.items.reduce((itemSum, item) => {
+                                    return itemSum + (item.price * (item.quantity || 1));
+                                }, 0);
+                                return sum + orderTotal;
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        setOrderStats({
+                            totalOrders: total,
+                            pendingOrders: pending,
+                            completedOrders: completed,
+                            totalRevenue: `₹${revenue.toFixed(2)}`,
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error("Error fetching orders:", error);
+                }
+            };
 
     const fetchOrders = async () => {
         try {
@@ -27,32 +68,8 @@ const Dashboard = () => {
             }
 
             const response = await getOrderDashboardAPI(pin);
-            if (response && response.data) {
-                setOrders(response.data);
-                
-                // Calculate stats safely
-                const total = response.data.length || 0;
-                const completed = response.data.filter(order => order?.status === "Paid").length || 0;
-                const pending = total - completed;
-
-                // Fixed revenue calculation
-                const revenue = response.data.reduce((sum, order) => {
-                    if (order?.items) {
-                        const orderTotal = order.items.reduce((itemSum, item) => {
-                            return itemSum + (item.price * (item.quantity || 1));
-                        }, 0);
-                        return sum + orderTotal;
-                    }
-                    return sum;
-                }, 0);
-                
-                setOrderStats({
-                    totalOrders: total,
-                    pendingOrders: pending,
-                    completedOrders: completed,
-                    totalRevenue: `₹${revenue.toFixed(2)}`,
-                });
-            }
+            setDashOrders(response.data);
+            
         } catch (error) {
             console.error("Error fetching orders:", error);
             setOrders([]); // Set empty array on error
@@ -60,7 +77,7 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        fetchOrders();
+        fetchOrders(), fetchallOders();
     }, []);
 
     const handleStatusUpdate = async () => {
@@ -69,7 +86,7 @@ const Dashboard = () => {
 
     // Add safe check before mapping orders
     const renderOrders = () => {
-        if (!orders || orders.length === 0) {
+        if (!dashOrders || dashOrders.length === 0) {
             return (
                 <div className="col-span-full text-center text-gray-400 py-8">
                     No orders found
@@ -77,7 +94,7 @@ const Dashboard = () => {
             );
         }
 
-        return orders.map((order) => (
+        return dashOrders.map((order) => (
             <motion.div
                 key={order.id}
                 className="bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-700"
@@ -88,9 +105,13 @@ const Dashboard = () => {
                 whileHover={{ scale: 1.02 }}
             >
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold text-white">{seller_category=="Hotel"?"Table":"Room"} {order.table_number}</h3>
+                    <h3 className="text-lg font-semibold text-white">
+                        {seller_category=="Hotel"?"Table":"Room"} {order.table_number}
+                    </h3>
                     <span className={`px-2 py-1 rounded-full text-sm ${
-                        order.status === 'Paid' ? 'bg-green-600' : 'bg-yellow-600'
+                        order.status === 'Delivered' 
+                            ? 'bg-green-600' 
+                            : 'bg-yellow-600'
                     }`}>
                         {order.status}
                     </span>
