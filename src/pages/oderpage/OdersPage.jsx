@@ -4,28 +4,46 @@ import React, { useEffect, useState } from 'react'
 import { getAllOdersAPI } from '../../services/allApi'
 import { BASE_URL } from '../../services/baseUrl'
 import Header from '../../components/common/Header'
+import OrderModal from '../../components/modal/OrderModal';
+
 const OdersPage = () => {
-    const [tablenumber, setTablenumber] = useState([])
+    const [orders, setOrders] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-            // Fetch food list from API on component mount
-            const fetchOders = async () => {
-                try {
-                    const response = await getAllOdersAPI();
-                    setTablenumber(response.data); // Assuming the API response contains the table number  
-                } catch (error) {
-                    console.error("Error fetching table:", error);
+        const fetchOders = async () => {
+            try {
+                const pin = localStorage.getItem("pin"); // Assuming you store the seller's PIN in localStorage
+                if (!pin) {
+                    console.error("Seller PIN not found");
+                    return;
                 }
-            };
+                
+                const response = await getAllOdersAPI(pin);
+                setOrders(response.data);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        };
+
+        fetchOders();
+    }, []); 
+
+    console.log(orders);
     
-            fetchOders();
-        }, []); 
 
     // filter table based on table number
-    // const filterTable = tablenumber.filter((table) => {
-    //     table.table_number.toLowerCase().includes(searchTerm.toLowerCase())
-    // })
+   const filterTable = orders.filter((table) => 
+    table.table_number.toString().toLowerCase().includes(searchTerm.toLowerCase())
+)
+
+    const handleViewOrder = (order) => {
+        setSelectedOrder(order);
+        setIsModalOpen(true);
+    };
+
   return (
    <div className='flex-1 relative z-10 overflow-auto'>
    <Header title={"Orders"} />
@@ -73,60 +91,58 @@ const OdersPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-700">
-                            <motion.tr
-                                    // key={table.id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                   
-                                   <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* <div className="text-sm text-gray-300">{table.table_number}</div> */}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* <div className="text-sm text-gray-300">{table.food_category_obj}</div> */}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* <div className="text-sm text-gray-300">{table.time_taken} Min</div> */}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-100">
-                                            {/* {table.price} */}
-                                        </span>
-                                    </td>
-    
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* <span
-                                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                table.is_available
-                                                    ? "bg-green-800 text-green-100"
-                                                    : "bg-red-800 text-red-100"
-                                            }`}
-                                        >
-                                            {table.is_available ? "Delivered" : "Pending"}
-                                        </span> */}
-                                    </td>
-    
-                                    {/* <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                                        <button
-                                            onClick={() => handleEdit(table.id)}
-                                            className="text-blue-500 hover:text-blue-700"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(table.id)}
-                                            className="text-red-500 hover:text-red-700"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td> */}
-                                </motion.tr>                            
-                            </tbody>
+    {filterTable.map((table) => (
+        <motion.tr
+            key={table.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.3 }}
+        >
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-300">{table.table_number}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-300">{table.items.map(item => item.food_name).join(", ")}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-300">{Math.max(...(table?.items?.map(item => item.time_taken) || []))} Min</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-100">
+                    {table.total_price}
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        table.status
+                            ? "bg-green-800 text-green-100"
+                            : "bg-red-800 text-red-100"
+                    }`}
+                >
+                    {table.status }
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <button
+                    onClick={() => handleViewOrder(table)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                    View Details
+                </button>
+            </td>
+        </motion.tr>
+    ))}
+</tbody>
                     </table>
                 </div>
            </div>
         </motion.div>
+        <OrderModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            order={selectedOrder}
+        />
    </div>
   )
 }

@@ -10,6 +10,7 @@ const EditTables = ({ table, onClose }) => {
         table_number: table?.table_number || "",
         owner: table?.owner || "",
     });
+    const seller_category = localStorage.getItem("seller_category");
 
     const owner = localStorage.getItem("owner");
 
@@ -57,7 +58,7 @@ const EditTables = ({ table, onClose }) => {
             exit={{ scale: 0.8 }}
         >
             <div className="flex justify-between items-center">
-                <h2 className="text-lg text-gray-600 font-bold">Edit Table</h2>
+                <h2 className="text-lg text-gray-600 font-bold">Edit {seller_category=="Hotel"?"Table":"Room"}</h2>
                 <button className="text-gray-600 hover:text-gray-800" onClick={onClose}>
                     ✕
                 </button>
@@ -86,7 +87,7 @@ const EditTables = ({ table, onClose }) => {
                         type="submit"
                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                     >
-                        Edit Table
+                        Edit {seller_category=="Hotel"?"Table":"Room"}
                     </button>
                 </div>
             </form>

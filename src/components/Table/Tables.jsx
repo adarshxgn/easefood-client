@@ -11,7 +11,7 @@ const Tables = () => {
   const { tableaddResponce } = useContext(tableaddResponceContext);
   const { tableEditResponce, setTableEditResponce } = useContext(tableEditResponceContext);
   const [selectedTable, setSelectedTable] = useState(null);
-
+  const seller_category = localStorage.getItem("seller_category");
   useEffect(() => {
     const fetchTable = async () => {
       const token = localStorage.getItem("accessToken");
@@ -86,17 +86,17 @@ const Tables = () => {
             className="text-lg rounded-lg bg-blue-700 hover:bg-blue-800 text-blue-100 m-5 p-1"
             onClick={openModal}
           >
-            Add Tables
+            Add { seller_category === "Hotel" ? "Table" : "Room" }
           </button>
           {isModalOpen && !selectedTable && <Addtables onClose={closeModal} />}
         </div>
 
         <div className="grid grid-cols-3 gap-9 lg:grid-cols-4">
-          {tables.length > 0 ? tables.map((table, index) => (
+        {tables.length > 0 ? tables.map((table, index) => (
+          seller_category === "Hotel" ? (
             <div className="table-container relative" key={index}>
               {/* Top Chair */}
               <div className="chair top-chair"></div>
-
               {/* Table */}
               <button className="table-btn relative" variant="primary">
                 {table.table_number}
@@ -115,6 +115,18 @@ const Tables = () => {
               {/* Right Chair */}
               <div className="chair right-chair"></div>
             </div>
+          ) : (
+            <div key={index}>
+              {/* Table */}
+              <button className="table-btn relative" variant="primary">
+                {table.table_number}
+                <div className="hover-buttons absolute top-0 mt-10 left-0 w-full h-full flex justify-center items-center space-x-2 opacity-0 hover:opacity-100">
+                  <button onClick={handleEditTable(table)} className="bg-gray-900 text-white px-2 py-1 rounded"><i className="fa-solid fa-pen-to-square"></i></button>
+                  <button onClick={() => deleteTable(table.id)} className="bg-gray-900 text-white px-2 py-1 rounded"><i className="fa-solid fa-trash"></i></button>
+                </div>
+              </button>
+            </div>
+          )
           )) : (
             <p>No tables added</p>
           )}

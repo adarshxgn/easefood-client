@@ -9,11 +9,16 @@ const SIDEBAR_ITEMS = [
 	{ name: "Tables", icon: Dice4, color: "#28b463", href: "/tables" },
 	{ name: "Dishes", icon: ShoppingBag, color: "#2980b9", href: "/dishes" },
 	{ name: "Category", icon: AlignEndHorizontal, color: "#8B5CF6", href: "/category" },
-	// { name: "Users", icon: Users, color: "#EC4899", href: "/users" },
-	// { name: "Analytics", icon: TrendingUp, color: "#3B82F6", href: "/analytics" },
-	// {name: "Overview",icon: DollarSign,color: "#6366f1",href: "/overview",},
-
-	// { name: "Settings", icon: Settings, color: "#6EE7B7", href: "/settings" },
+	{
+		name: "logout",
+		icon: LogOut,
+		color: "#EF4444",
+		href: "/",
+		onClick: () => {
+			localStorage.clear();
+			sessionStorage.clear();
+		}
+	},
 ];
 
 const Sidebar = () => {

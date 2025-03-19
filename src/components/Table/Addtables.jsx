@@ -9,6 +9,7 @@ const Addtables = ({onClose}) => {
         table_number: "",
         owner: ""
     })
+    const seller_category = localStorage.getItem("seller_category")
 const owner = localStorage.getItem("owner")
     const handleSubmit = async(e)=>{
         e.preventDefault()
@@ -49,7 +50,7 @@ const owner = localStorage.getItem("owner")
     exit={{ scale: 0.8 }}
 >
     <div className="flex justify-between items-center">
-        <h2 className="text-lg text-gray-600 font-bold">Add Table</h2>
+        <h2 className="text-lg text-gray-600 font-bold">Add {seller_category=="Hotel"?"Table":"Room"}</h2>
         <button
             className="text-gray-600 hover:text-gray-800"
             onClick={onClose}
@@ -60,7 +61,7 @@ const owner = localStorage.getItem("owner")
     <form >
         <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700">
-                 Table_number
+            {seller_category=="Hotel"?"Table":"Room"} number
             </label>
             <input
                 type="text"

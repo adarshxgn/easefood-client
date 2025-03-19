@@ -3,9 +3,10 @@ import { motion } from 'motion/react'
 import Header from '../../components/common/Header'
 import Tables from '../../components/Table/Tables'
 const Tablepages = () => {
+  const seller_category = localStorage.getItem("seller_category")
   return (
     <div className='flex-1 relative z-10 overflow-auto'>
-   <Header title={"Tables"} />
+   <Header title={seller_category=="Hotel"?"Table":"Room"} />
    <motion.div
           className="sm:grid-cols-2 p-5"
                   initial={{ opacity: 0, y: 20 }}

@@ -168,7 +168,7 @@ function AuthPage({ register }) {
                 const loginResponse = await signInApi(loginData);
                 
                 if (loginResponse.status === 200) {
-                    const { access_token, refresh_token, user, owner, pin } = loginResponse.data;
+                    const { access_token, refresh_token, user, owner, pin, seller_category } = loginResponse.data;
 
                     // Store tokens and user info in localStorage
                     localStorage.setItem("accessToken", access_token);
@@ -176,6 +176,10 @@ function AuthPage({ register }) {
                     localStorage.setItem("user", JSON.stringify(user));
                     localStorage.setItem("owner", owner);
                     localStorage.setItem("pin",pin)
+                    localStorage.setItem("seller_category",seller_category)
+                    
+                    console.log(loginResponse.data);
+                    
 
                     toast.success("Login successful!");
                     navigate("/dashboard"); // Redirect to dashboard after login

@@ -34,10 +34,6 @@ export const getFoodListApi = async (getDish,reqHeader) => {
   
 }
 
-// get all oders api
-export const getAllOdersAPI = async (getOder,reqHeader) =>{
-  return await commonApi("GET", `${BASE_URL}/api/cart,`, getOder , reqHeader)
-}
 //API For EDIT Food
 export const editFoodListApi = async (foodId, editDish, reqHeader) => {
   return await commonApi("PUT", `${BASE_URL}/api/food/${foodId}/`, editDish, reqHeader);
@@ -92,6 +88,18 @@ export const sendOtpApi = async (payload) => {
 
 export const verifyOtpApi = async (payload) => {
   return await commonApi("POST", `${BASE_URL}/api/otp/`, payload, "")
+}
+
+export const getAllOdersAPI = async (pin) => {
+  return await commonApi("GET", `${BASE_URL}/orders/${pin}/`, null, "")
+}
+
+export const getOrderDashboardAPI = async (pin) => {
+  return await commonApi("GET", `${BASE_URL}/orders-dashboard/${pin}/`, null, "");
+}
+
+export const changestatusapi = async (orderId, status) => {
+  return await commonApi("POST", `${BASE_URL}/order-status/${orderId}/`, { status }, "");
 }
 
 export const refreshAccessToken = async (refreshToken) => {
