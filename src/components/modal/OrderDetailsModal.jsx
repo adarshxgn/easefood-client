@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Check } from 'lucide-react';
 import { changestatusapi } from '../../services/allApi';
+import { useContext } from 'react';
+import { orderContext } from '../../pages/context/ContextShare';
 
 const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const seller_category = localStorage.getItem("seller_category");
+    const { setOrderUpdate } = useContext(orderContext);
     const handleStatusChange = async () => {
         try {
             setIsUpdating(true);
@@ -13,6 +16,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
             if (response.status === 200) {
                 // Call the callback to update the parent component
                 onStatusUpdate && onStatusUpdate();
+                setOrderUpdate(prev => !prev);
                 onClose();
             }
         } catch (error) {

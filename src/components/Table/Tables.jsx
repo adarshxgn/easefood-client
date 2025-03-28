@@ -24,7 +24,7 @@ const Tables = () => {
           const result = await getTableApi(reqHeader);
           console.log(result);
           if (result.status === 200) {
-            setTables(result.data);
+            setTables(result.data.tables);
           } else {
             console.log(result.response.data);
           }

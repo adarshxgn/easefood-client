@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "motion/react"
 import StatCard from "../../components/common/StatCard";
 import { CheckCircle, Clock, DollarSign, ShoppingBag } from "lucide-react";
 import Header from "../../components/common/Header";
 import { getAllOdersAPI, getOrderDashboardAPI } from "../../services/allApi";
 import OrderDetailsModal from '../../components/modal/OrderDetailsModal';
+import { orderContext } from "../context/ContextShare"; 
 
 const Dashboard = () => {
     const [orders, setOrders] = useState([]);
+    const {orderUpdate} = useContext(orderContext);
     const [dashOrders, setDashOrders] = useState([]);
     const seller_category = localStorage.getItem("seller_category");
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -19,45 +21,43 @@ const Dashboard = () => {
         totalRevenue: 0,
     });
     const fetchallOders = async () => {
-                try {
-                    const pin = localStorage.getItem("pin"); 
-                    if (!pin) {
-                        console.error("Seller PIN not found");
-                        return;
-                    }
-                    
-                    const response = await getAllOdersAPI(pin);
-                    if (response && response.data) {
-                        setOrders(response.data);
-                
-                        // Calculate stats safely with updated logic
-                        const total = response.data.length || 0;
-                        const completed = response.data.filter(order => order?.status === "Delivered").length || 0;
-                        const pending = response.data.filter(order => order?.status === "Pending").length || 0;
+        try {
+            const pin = localStorage.getItem("pin"); 
+            if (!pin) {
+                console.error("Seller PIN not found");
+                return;
+            }
+            
+            const response = await getAllOdersAPI(pin);
+            if (response && response.data) {
+                setOrders(response.data);
         
-                        // Fixed revenue calculation
-                        const revenue = response.data.reduce((sum, order) => {
-                            if (order?.items) {
-                                const orderTotal = order.items.reduce((itemSum, item) => {
-                                    return itemSum + (item.price * (item.quantity || 1));
-                                }, 0);
-                                return sum + orderTotal;
-                            }
-                            return sum;
+                // Calculate stats safely with updated logic
+                const total = response.data.length || 0;
+                const completed = response.data.filter(order => order?.status === "Delivered").length || 0;
+    
+                // Fixed revenue calculation
+                const revenue = response.data.reduce((sum, order) => {
+                    if (order?.items) {
+                        const orderTotal = order.items.reduce((itemSum, item) => {
+                            return itemSum + (item.price * (item.quantity || 1));
                         }, 0);
-                        
-                        setOrderStats({
-                            totalOrders: total,
-                            pendingOrders: pending,
-                            completedOrders: completed,
-                            totalRevenue: `₹${revenue.toFixed(2)}`,
-                        });
+                        return sum + orderTotal;
                     }
-                    
-                } catch (error) {
-                    console.error("Error fetching orders:", error);
-                }
-            };
+                    return sum;
+                }, 0);
+                
+                setOrderStats({
+                    totalOrders: total,
+                    completedOrders: completed,
+                    totalRevenue: `₹${revenue.toFixed(2)}`,
+                });
+            }
+            
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        }
+    };
 
     const fetchOrders = async () => {
         try {
@@ -69,16 +69,29 @@ const Dashboard = () => {
 
             const response = await getOrderDashboardAPI(pin);
             setDashOrders(response.data);
+            // Update only pending orders count
+            const pending = response.data.filter(order => order?.status === "Paid").length || 0;
             
+            // Update orderStats with pending orders
+            setOrderStats(prevStats => ({
+                ...prevStats,
+                pendingOrders: pending
+            }));
+
         } catch (error) {
             console.error("Error fetching orders:", error);
-            setOrders([]); // Set empty array on error
+            setDashOrders([]); // Set empty array on error
         }
     };
 
     useEffect(() => {
-        fetchOrders(), fetchallOders();
-    }, []);
+        const initializeDashboard = async () => {
+            await fetchallOders(); // First get all orders for total stats
+            await fetchOrders();   // Then get dashboard orders for pending count
+        };
+        
+        initializeDashboard();
+    }, [orderUpdate]);
 
     const handleStatusUpdate = async () => {
         await fetchOrders(); // Now we can access fetchOrders here
@@ -113,7 +126,7 @@ const Dashboard = () => {
                             ? 'bg-green-600' 
                             : 'bg-yellow-600'
                     }`}>
-                        {order.status}
+                        {order.status=="Paid"?"Pending":"Completed"}
                     </span>
                 </div>
                 <p className="text-gray-400">Items: {order.items.length}</p>
