@@ -9,6 +9,8 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const seller_category = localStorage.getItem("seller_category");
     const { setOrderUpdate } = useContext(orderContext);
+    console.log(order);
+    
     const handleStatusChange = async () => {
         try {
             setIsUpdating(true);
@@ -52,7 +54,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
                     <div className="grid grid-cols-2 gap-4 border-b border-gray-700 pb-4">
                         <div>
                             <p className="text-gray-400">{seller_category=="Hotel"?"Table":"Room"} Number</p>
-                            <p className="text-white text-lg">{order.table_number}</p>
+                            {/* <p className="text-white text-lg">{order.table_number.table_number}</p> */}
                         </div>
                         <div>
                             <p className="text-gray-400">Order Time</p>
@@ -66,6 +68,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusUpdate }) => {
                             {order.items.map((item, index) => (
                                 <div key={index} className="flex justify-between items-center">
                                     <span className="text-gray-300">{item.food_name}</span>
+                                    <span className="text-gray-300" >{item.quantity}</span>
                                     <span className="text-gray-400">₹{item.price}</span>
                                 </div>
                             ))}
